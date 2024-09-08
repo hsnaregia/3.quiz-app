@@ -52,10 +52,16 @@ body , html {
     border: 3px solid var(--second);
     border-radius: 10px;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-/* animation */.boxes:hover {
+/* animation */
+.boxes:hover {
     animation: shadow-drop-2-center 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+    background-color:#B9B4C7;
 }
 
 /* Define the shadow-drop-2-center animation */
@@ -85,3 +91,8 @@ body , html {
     }
 }
 /* end */
+
+.boxes img{
+    width: 3vw;
+    height: 3vw;
+}
