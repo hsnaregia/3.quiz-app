@@ -2,11 +2,14 @@ const url = "https://opentdb.com/api.php?amount=10";
 const box = document.querySelectorAll(".boxes");
 const first = document.querySelector(".container");
 const second = document.querySelector(".question_cont");
-let used_Nums=[];
+const buttons = document.querySelectorAll(".btn");
+let used_Nums = [];
 const question = [];
 let current = 0;
+let user_answers=[];
+let correct_answers=[];
+let score = 0;
 box_choice();
-// from 9 to 32;
 
 
 async function fetch_dat(api_url) {
@@ -15,54 +18,90 @@ async function fetch_dat(api_url) {
   console.log(data);
   for (let index = 0; index < 10; index++) {
     question[index] = {
-      id: (index + 1),
+      id: index + 1,
       quest: data.results[index].question,
-      answer: data.results[index].correct_answer+','+data.results[index].incorrect_answers,
+      answer: data.results[index].correct_answer,
       wrong: data.results[index].incorrect_answers,
     };
   }
-  let x = 2;
-  showQuestion(x+1);
+
+  play();
 }
-
-function rand_generator(maxNr)
-{
-  let random = (Math.random() * maxNr).toFixed();
-
-  //Coerce to number by boxing
-  random = Number(random)+1;
-
-  if(!used_Nums.includes(random)) {
-      used_Nums.push(random);
-      return random;
-  } else {
-      if(used_Nums < maxNr) {
-        //Recursively generate number
-       return  rand_generator(maxNr);
-      } else {
-        console.log('No more numbers available.')
-        return false;
-      }
+function answerCheck(question) {
+  
+  for (let index = 0; index < 4; index++) {
+    if (buttons[index].innerText == question.answer) {
+      buttons[index].classList.add("correct"); 
+      correct_answers.push(index+1);
+    } else {
+      buttons[index].classList.add("incorrect"); 
+    }
   }
 }
 
+function play() {
+  let counter = 0;
 
-function showQuestion(questionNumber){
-  const questi = question;
-  document.getElementById("quiz").innerText = questi[questionNumber].quest;
-  
- for(let index=0 ; index <4 ; index++)
-  {
-  
-  rand_generator(4);
-  console.log(used_Nums);
-  document.getElementById(`answ${used_Nums[index]}`).textContent= questi[questionNumber].answer;
+  showQuestion(counter);
 
- }
+  buttons.forEach((point, index) => {
+    point.addEventListener('click', function () {
+      let choice_id = this.children[0].id;
+      
+      user_answers.push(choice_id.slice(4,5));
+      answerCheck(question[counter]);
 
+      setTimeout(() => {
+        buttons.forEach((btn) => {
+          btn.classList.remove("correct", "incorrect");
+        });
+
+        counter++;
+
+        
+        if (counter < question.length) {
+          used_Nums=[];
+          showQuestion(counter);
+        } else {
+          console.log('Quiz complete. User answers:', user_answers);
+          endQuiz(); 
+        }
+      }, 2000); 
+    });
+  });
 }
 
 
+function rand_generator(maxNr) {
+  let random = Math.trunc(Math.random() * maxNr) + 1;
+
+  if (!used_Nums.includes(random)) {
+    used_Nums.push(random);
+    return random;
+  } else {
+    if (used_Nums.length < maxNr) {
+      return rand_generator(maxNr);
+    } else {
+      console.log("No more numbers available.");
+      return false;
+    }
+  }
+}
+
+function showQuestion(questionNumber) {
+  const questi = question[questionNumber];
+  document.getElementById("quiz").innerText = questi.quest;
+  let array_answ = [...questi.wrong];
+  array_answ.push(questi.answer);
+
+  for (let index = 0; index < 4; index++) {
+    rand_generator(4);
+    console.log(used_Nums);
+
+    document.getElementById(`answ${used_Nums[index]}`).innerText =
+      array_answ[index];
+  }
+}
 
 function box_choice() {
   const boxes = document.querySelectorAll(".boxes");
@@ -86,4 +125,22 @@ function ID(data) {
   let x = data.slice(1, data.lenght);
   x = parseInt(x) + 8;
   return x;
+}
+
+
+function endQuiz(){
+  console.log(user_answers);
+  console.log(correct_answers);
+  for(let index = 0; index<9 ; index++){
+    if(user_answers[index]==correct_answers[index]){
+      score+=200;
+    }
+    else
+    {
+      if(score>100){
+        score-=50;
+      }
+    }
+  }
+  
 }
