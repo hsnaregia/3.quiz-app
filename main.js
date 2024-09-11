@@ -3,9 +3,10 @@ const box = document.querySelectorAll(".boxes");
 const first = document.querySelector(".container");
 const second = document.querySelector(".question_cont");
 const buttons = document.querySelectorAll(".btn");
+const show_score = document.getElementById('score');
+const last_page = document.querySelector('.end-game-screen');
 let used_Nums = [];
-const question = [];
-let current = 0;
+let question = [];
 let user_answers=[];
 let correct_answers=[];
 let score = 0;
@@ -142,5 +143,29 @@ function endQuiz(){
       }
     }
   }
-  
+
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+      const load = document.querySelector(".loading");
+
+  function reload() {
+show_score.innerText=`you scored ${score}`;
+ load.addEventListener('click', function() {
+  load.classList.add("loader");
+  setTimeout(() => {
+   last_page.classList.add('hide');
+   last_page.classList.remove('show');
+    first.classList.add('show');
+    first.classList.remove('hide');
+     used_Nums = [];
+     question = [];
+     user_answers=[];
+     correct_answers=[];
+     score = 0;
+   }, 4000);
+   });
+   }
+
+ reload();
+});
