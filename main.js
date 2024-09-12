@@ -1,3 +1,7 @@
+
+const load = document.querySelector(".loading");
+
+
 const url = "https://opentdb.com/api.php?amount=10";
 const box = document.querySelectorAll(".boxes");
 const first = document.querySelector(".container");
@@ -12,28 +16,32 @@ let correct_answers=[];
 let score = 0;
 box_choice();
 
+let response ;
 
 async function fetch_dat(api_url) {
-  const response = await fetch(api_url);
+  
+  response = await fetch(api_url);
   const data = await response.json();
   console.log(data);
-  for (let index = 0; index < 10; index++) {
-    question[index] = {
-      id: index + 1,
-      quest: data.results[index].question,
-      answer: data.results[index].correct_answer,
-      wrong: data.results[index].incorrect_answers,
-    };
-  }
 
+  
+ 
+  question = data.results.map((result, index) => ({
+    id: index + 1,
+    quest: result.question,
+    answer: result.correct_answer,
+    wrong: result.incorrect_answers,
+  }));
+  
   play();
 }
-function answerCheck(question) {
+function answerCheck(number) {
   
   for (let index = 0; index < 4; index++) {
-    if (buttons[index].innerText == question.answer) {
+    if (buttons[index].innerText == question[number].answer) {
       buttons[index].classList.add("correct"); 
       correct_answers.push(index+1);
+      
     } else {
       buttons[index].classList.add("incorrect"); 
     }
@@ -49,8 +57,8 @@ function play() {
     point.addEventListener('click', function () {
       let choice_id = this.children[0].id;
       
-      user_answers.push(choice_id.slice(4,5));
-      answerCheck(question[counter]);
+      user_answers[counter]=choice_id.slice(4,5);
+      answerCheck(counter);
 
       setTimeout(() => {
         buttons.forEach((btn) => {
@@ -64,7 +72,7 @@ function play() {
           used_Nums=[];
           showQuestion(counter);
         } else {
-          console.log('Quiz complete. User answers:', user_answers);
+          console.log('Quiz complete. User answers:');
           endQuiz(); 
         }
       }, 2000); 
@@ -123,7 +131,7 @@ function box_choice() {
 }
 
 function ID(data) {
-  let x = data.slice(1, data.lenght);
+  let x = data.slice(1, data.length);
   x = parseInt(x) + 8;
   return x;
 }
@@ -132,40 +140,43 @@ function ID(data) {
 function endQuiz(){
   console.log(user_answers);
   console.log(correct_answers);
-  for(let index = 0; index<9 ; index++){
-    if(user_answers[index]==correct_answers[index]){
+  for(let index = 0; index<question.length; index++){
+    if(parseInt(user_answers[index])== parseInt(correct_answers[index])){
       score+=200;
     }
-    else
-    {
-      if(score>100){
-        score-=50;
-      }
-    }
+    console.log(score);
   }
 
+  show_score.innerText=`you scored ${score}`;
+  second.classList.add("hide");
+  second.classList.remove("show");
+  last_page.classList.add("show");
+  last_page.classList.remove("hide");
+  reload();
+  
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-      const load = document.querySelector(".loading");
 
-  function reload() {
-show_score.innerText=`you scored ${score}`;
- load.addEventListener('click', function() {
-  load.classList.add("loader");
-  setTimeout(() => {
-   last_page.classList.add('hide');
-   last_page.classList.remove('show');
-    first.classList.add('show');
-    first.classList.remove('hide');
-     used_Nums = [];
-     question = [];
-     user_answers=[];
-     correct_answers=[];
-     score = 0;
-   }, 4000);
-   });
-   }
-
- reload();
-});
+function reload() {
+  load.addEventListener('click', function() {
+    load.classList.add("loader");
+    setTimeout(() => {
+      last_page.classList.add("hide");
+      last_page.classList.remove("show");
+      first.classList.add("show");
+      first.classList.remove("hide");
+       used_Nums = [];
+       
+      user_answers=[];  
+      question=[];
+       correct_answers=[];
+       score = 0;
+      console.log("question  =" , question);
+      console.log("correct answers = " ,correct_answers);
+      console.log( "user answers =" ,user_answers );
+      console.log( "score = ", score);
+      console.log("question answers =" ,question.answer);
+      load.classList.remove("loader");
+    }, 4000);
+  });
+}
